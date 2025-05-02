@@ -1,0 +1,33 @@
+@page "/login"
+@using MudBlazor
+@using EMarketApp.Models
+
+<PageTitle>Login</PageTitle>
+
+<MudMainContent>
+    <MudContainer>
+        <EditForm Model="user" Class="d-flex align-center flex-column" OnValidSubmit="HandleSubmit">
+            <h2>Login</h2>
+            <MudTextField @bind-Value="user.Email" Label="Email" Variant="Variant.Outlined"></MudTextField>
+            <MudTextField @bind-Value="user.Password" Label="Password" Variant="Variant.Outlined"></MudTextField>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary">Login</MudButton>
+        </EditForm>
+    </MudContainer>
+</MudMainContent>
+
+@code {
+    private InputModel user = new InputModel();
+    
+    private async Task HandleSubmit()
+    {
+        Console.WriteLine(user.Email);
+        Console.WriteLine(user.Password);
+        @* var user = AuthService.RegisterUserAsync(user.Name, user.Email, user.Password); *@
+    }
+
+    private sealed class InputModel
+    {
+        public string Email = "";
+        public string Password = "";
+    }
+}

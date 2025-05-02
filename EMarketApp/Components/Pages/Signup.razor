@@ -1,0 +1,134 @@
+@page "/signup"
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Identity
+@using EMarketApp.Models
+@using EMarketApp.Services
+@inject AuthService AuthService
+
+<PageTitle>Signup</PageTitle>
+
+<MudMainContent>
+    <MudContainer>
+        <MudForm @ref="mudForm" Class="d-flex align-center flex-column">
+            <h2>Signup</h2>
+            <MudTextField 
+                Label="UserName" 
+                Variant="Variant.Outlined"
+                @bind-Value="user.UserName"
+                Validation="ValidateUsername"
+                DebounceInterval="500" />
+            <MudTextField 
+                Label="Email" 
+                Variant="Variant.Outlined"
+                @bind-Value="user.Email" 
+                Validation="ValidateEmail"
+                DebounceInterval="500" />
+            <MudTextField 
+                Label="Password" 
+                Variant="Variant.Outlined"
+                @bind-Value="user.Password" 
+                Validation="ValidatePassword"
+                Immediate="true" />
+            <MudButton OnClick="HandleSubmit" Disabled="@( !validForm )"  Variant="Variant.Filled" Color="Color.Primary">Signup</MudButton>
+        </MudForm>
+    </MudContainer>
+</MudMainContent>
+
+@code {
+    private MudForm mudForm;
+    private bool username { get; set; } = true;
+    private bool email { get; set; } = true;
+    private bool password { get; set; } = true;
+    private bool validForm =>  username && email && password;
+    private InputModel user { get; set; } = new();
+    private async Task HandleSubmit()
+    {
+        @* await mudForm.Validate(); *@
+        
+        if (mudForm.IsValid)
+        {
+            var result = await AuthService.RegisterUserAsync(user.UserName, user.Email, user.Password);
+            if (result.Succeeded)
+            {
+                user = new();
+            }
+        }
+    }
+
+    private async Task<string?> ValidateUsername(string? input)
+    {
+        username = false;
+        if (input == "")
+        {
+            StateHasChanged();
+            return "UserName is required";
+        }
+        bool exists = await AuthService.UsernameExistAsync(input);
+        if (exists)
+        {
+            StateHasChanged();
+            return "UserName exists.";
+        }
+        else
+        {
+            username = true;
+            StateHasChanged();
+            return null;
+        }
+    }
+
+    private async Task<string?> ValidateEmail(string? input)
+    {
+        email = false;
+        if (input == "")
+        {
+            StateHasChanged();
+            return "Email is required";
+        }
+        else if (!input.Contains("@"))
+        {
+            StateHasChanged();
+            return "Invalid Email Address";
+        }
+        bool exists = await AuthService.EmailExistAsync(input);
+        if (exists)
+        {
+            StateHasChanged();
+            return "Email exits.";
+        }
+        else
+        {
+            email = true;
+            StateHasChanged();
+            return null;
+        }
+    }
+
+    private async Task<string?> ValidatePassword(string? input)
+    {
+        password = false;
+        if (input == "")
+        {
+            StateHasChanged();
+            return "Password is required";
+        }
+        else if (input.Length < 6)
+        {
+            StateHasChanged();
+            return "Password must be at least 6 characters";
+        }
+        else
+        {
+            password = true;
+            StateHasChanged();
+            return null;
+        }
+    }
+
+    private sealed class InputModel
+    {
+        public string UserName { get; set; } = "";
+        public string Email { get; set; } = "";
+        public string Password { get; set; } = "";
+    }
+}

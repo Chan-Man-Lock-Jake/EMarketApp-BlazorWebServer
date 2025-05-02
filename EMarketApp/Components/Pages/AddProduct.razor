@@ -1,0 +1,50 @@
+@page "/addproduct"
+@rendermode InteractiveServer
+@using EMarketApp.Models
+@using EMarketApp.Services
+@inject ProductService ProductService
+
+<h3>Add Product</h3>
+
+@if (categories == null)
+{
+    <p>Loading categories...</p>
+}
+else
+{
+    <EditForm Model="@newProduct" OnValidSubmit="HandleSubmit">
+
+        <div class="form-group">
+            <label for="ProductName">Product Name</label>
+            <InputText class="form-control" id="ProductName" @bind-Value="newProduct.ProductName" />
+        </div>
+
+        <div class="form-group">
+            <label for="Category">Category</label>
+            <InputSelect class="form-control" id="Category" name="Category" @bind-Value="newProduct.CategoryId">
+                @foreach (var category in categories)
+                {
+                    <option value="@category.CategoryId">@category.CategoryName</option>
+                }
+            </InputSelect>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Create</button>
+    </EditForm>
+}
+
+@code {
+    private List<Category> categories;
+    private Product newProduct = new Product();
+
+    protected override async Task OnInitializedAsync()
+    {
+        categories = await ProductService.GetAllCategoriesAsync();
+    }
+
+    private async Task HandleSubmit()
+    {
+        await ProductService.AddProductAsync(newProduct);
+        newProduct = new Product();
+    }
+}

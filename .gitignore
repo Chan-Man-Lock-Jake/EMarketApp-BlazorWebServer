@@ -1,0 +1,46 @@
+## Build artifacts
+bin/
+obj/
+out/
+
+## User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Visual Studio files
+.vscode/
+.vs/
+
+## Rider project files
+.idea/
+
+## ASP.NET / Blazor files
+wwwroot/**/*.publish.json
+wwwroot/**/*.gz
+wwwroot/**/*.br
+
+## Logs and database
+*.log
+*.db
+*.db-shm
+*.db-wal
+
+## Configuration
+appsettings.json
+appsettings.*.json
+secrets.json
+launchSettings.json
+
+## Dotnet specific
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+## NPM packages (if using)
+node_modules/
+
+## Static site build output (Blazor WebAssembly)
+dist/
+build/

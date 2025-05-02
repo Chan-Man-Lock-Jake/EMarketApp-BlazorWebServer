@@ -1,0 +1,27 @@
+@page "/addcategory"
+@* @rendermode InteractiveServer *@
+@using EMarketApp.Models
+@using EMarketApp.Services
+@inject ProductService ProductService
+
+<h3>Add Category</h3>
+
+<EditForm Model="newCategory" OnValidSubmit="HandleSubmit">
+
+    <div class="form-group">
+        <label for="CategoryName">Category Name</label>
+        <InputText class="form-control" id="CategoryName" @bind-Value="newCategory.CategoryName" />
+    </div>
+
+    <button onclick="HandleSubmit" type="submit" class="btn btn-primary">Create</button>
+</EditForm>
+
+@code {
+    private Category newCategory = new Category();
+
+    private async Task HandleSubmit()
+    {
+        await ProductService.AddCategoryAsync(newCategory);
+        newCategory = new Category();
+    }
+}
