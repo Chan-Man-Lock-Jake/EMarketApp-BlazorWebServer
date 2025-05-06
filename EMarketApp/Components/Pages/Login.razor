@@ -1,28 +1,64 @@
 @page "/login"
-@using MudBlazor
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Identity
 @using EMarketApp.Models
+@using EMarketApp.Services
+@using MudBlazor.Services
+@inject AuthService AuthService
 
 <PageTitle>Login</PageTitle>
 
 <MudMainContent>
     <MudContainer>
-        <EditForm Model="user" Class="d-flex align-center flex-column" OnValidSubmit="HandleSubmit">
+        <MudForm Model="user" Class="d-flex align-center flex-column" OnValidSubmit="HandleSubmit">
             <h2>Login</h2>
-            <MudTextField @bind-Value="user.Email" Label="Email" Variant="Variant.Outlined"></MudTextField>
-            <MudTextField @bind-Value="user.Password" Label="Password" Variant="Variant.Outlined"></MudTextField>
-            <MudButton Variant="Variant.Filled" Color="Color.Primary">Login</MudButton>
-        </EditForm>
+            <MudTextField 
+                Label="Email" 
+                Variant="Variant.Outlined"
+                @bind-Value="user.Email" 
+                 />
+            <MudTextField 
+                Label="Password"
+                Variant="Variant.Outlined"
+                InputType="showPassword ? InputType.Text : InputType.Password"
+                @bind-Value="user.Password"
+                Adornment="Adornment.End"
+                AdornmentIcon="@(showPassword ? Icons.Material.Filled.Visibility : Icons.Material.Filled.VisibilityOff)"
+                OnAdornmentClick="@TogglePasswordVisibility"
+                 />
+            <MudButton OnClick="HandleSubmit" Disabled="@( !validForm )" Variant="Variant.Filled" Color="Color.Primary">Login</MudButton>
+        </MudForm>
     </MudContainer>
 </MudMainContent>
 
 @code {
     private InputModel user = new InputModel();
+    bool validForm = true;
+    private bool showPassword = false;
     
     private async Task HandleSubmit()
     {
+        validForm = false;
         Console.WriteLine(user.Email);
         Console.WriteLine(user.Password);
         @* var user = AuthService.RegisterUserAsync(user.Name, user.Email, user.Password); *@
+        string? success = null;
+        try
+        {
+            success = await AuthService.LoginUserAsync(user.Email, user.Password);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+        Console.WriteLine(success);
+        validForm = true;
+    }
+
+    private void TogglePasswordVisibility()
+    {
+        showPassword = !showPassword;
     }
 
     private sealed class InputModel

@@ -15,13 +15,16 @@ public class AuthService
     private readonly ApplicationDbContext _dbContext;
     private readonly ILogger<AuthService> _logger;
     private readonly UserManager<User> _userManager;
+    private readonly SignInManager<User> _signInManager;
     private readonly IConfiguration _configuration;
-    public AuthService(IDbContextFactory<ApplicationDbContext> dbContextFactory, ApplicationDbContext context, ILogger<AuthService> logger, UserManager<User> manager)
+    public AuthService(IConfiguration configuration, IDbContextFactory<ApplicationDbContext> dbContextFactory, ApplicationDbContext context, ILogger<AuthService> logger, UserManager<User> usermanager, SignInManager<User> signinmanager)
     {
+        _configuration = configuration;
         _dbContextFactory = dbContextFactory;
         _dbContext = context;
         _logger = logger;
-        _userManager = manager;
+        _userManager = usermanager;
+        _signInManager = signinmanager;
     }
 
     // (DONE) POST /api/register – Register new user
@@ -53,25 +56,29 @@ public class AuthService
     }
     
     //  POST /api/login – Login, return token/session
-    // public async Task<LoginResult> LoginUserAsync(LoginRequest request)
-    // {
-    //     var user = await _userManager.FindByNameAsync(request.UserName);
-    //     if (user == null)
-    //     {
-    //         return new LoginResult { Success = false, Error = "Invalid username or password" };
-    //     }
+    public async Task<string?> LoginUserAsync(string email, string password)
+    {
+        var user = await _userManager.FindByEmailAsync(email);
+        if (user == null)
+        {
+            _logger.LogInformation("User not found.");
+            return null;
+        }
+        _logger.LogInformation($"Found user: {user}");
 
-    //     var result = await _signInManager.CheckPasswordSignInAsync(user, request.Password, false);
-    //     if (!result.Succeeded)
-    //     {
-    //         return new LoginResult { Success = false, Error = "Invalid username or password" };
-    //     }
+        var result = await _signInManager.CheckPasswordSignInAsync(user, password, false);
+        if (!result.Succeeded)
+        {
+            _logger.LogInformation("Invalid password.");
+            return null; 
+        }
+        _logger.LogInformation("Correct password.");
 
-    //     var token = GenerateJwtToken(user);
-    //     return new LoginResult { Success = true, Token = token };
-    // }
+        var token = GenerateJwtToken(user);
+        return token;
+    }
 
-    private string GenerateJwtToken(IdentityUser user)
+    private string GenerateJwtToken(User user)
     {
         var claims = new[]
         {

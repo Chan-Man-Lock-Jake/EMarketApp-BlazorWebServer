@@ -28,7 +28,11 @@
                 Variant="Variant.Outlined"
                 @bind-Value="user.Password" 
                 Validation="ValidatePassword"
-                Immediate="true" />
+                Immediate="true"
+                InputType="showPassword ? InputType.Text : InputType.Password"
+                Adornment="Adornment.End"
+                AdornmentIcon="@(showPassword ? Icons.Material.Filled.Visibility : Icons.Material.Filled.VisibilityOff)"
+                OnAdornmentClick="@TogglePasswordVisibility" />
             <MudButton OnClick="HandleSubmit" Disabled="@( !validForm )"  Variant="Variant.Filled" Color="Color.Primary">Signup</MudButton>
         </MudForm>
     </MudContainer>
@@ -40,6 +44,7 @@
     private bool email { get; set; } = true;
     private bool password { get; set; } = true;
     private bool validForm =>  username && email && password;
+    private bool showPassword = false;
     private InputModel user { get; set; } = new();
     private async Task HandleSubmit()
     {
@@ -123,6 +128,11 @@
             StateHasChanged();
             return null;
         }
+    }
+
+    private void TogglePasswordVisibility()
+    {
+        showPassword = !showPassword;
     }
 
     private sealed class InputModel

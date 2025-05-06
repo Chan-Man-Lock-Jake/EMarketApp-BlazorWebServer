@@ -18,6 +18,7 @@ builder.Services.AddRazorComponents()
 // builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 builder.Services.AddIdentity<User, IdentityRole<Guid>>(options =>
 {
     options.User.RequireUniqueEmail = true;
@@ -27,7 +28,10 @@ builder.Services.AddIdentity<User, IdentityRole<Guid>>(options =>
     options.Password.RequiredLength = 6;
     options.Password.RequiredUniqueChars = 0;
 })
-.AddEntityFrameworkStores<ApplicationDbContext>();
+.AddEntityFrameworkStores<ApplicationDbContext>()
+.AddDefaultTokenProviders();
+
+// builder.Services.AddScoped<SignInManager<User>>();
 
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<ProductService>();
